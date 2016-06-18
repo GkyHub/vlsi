@@ -20,9 +20,20 @@ module TH99CHLS (
     output  [65: 0] display
     );
 
+    // output signals
+    wire    [6 : 0] sig_digi2, sig_digi1, sig_digi0;
+    wire    [15: 0] ap;
+    wire    [6 : 0] hour_digi0, hour_digi_1;
+    wire    [6 : 0] minute_digi0, minute_digi_1;
+    
+    // local variables
     reg     [15: 0] addr;
     reg     conf_filter;
     reg     conf_timer;
+    
+    wire    [7 : 0] hour_hex, minute_hex;
+    wire    [3 : 0] hour_bcd0, hour_bcd1;
+    wire    [3 : 0] minute_bcd0, minute_bcd1;
 
     // address latch
     always @ (abus or dbus or ale) begin
@@ -30,8 +41,6 @@ module TH99CHLS (
             addr <= {abus, dbus};
         end
     end
-
-    // module selection
 
     // filter
     filter filter_inst (
@@ -45,10 +54,48 @@ module TH99CHLS (
         .x      (sig_in     ),
         .y      (sig_out    )
     );
+    
+    // filter amplify conversion
+    sqrt_amp sqrt_amp_inst (
+        .clock  (clock  ),
+        .rst_n  (rst_n  ),
+        .data   (sig_out),
+        .ap     (ap     )
+    );
 
     // timer
-
-    // display encoder
-
+    timer timer_inst (
+        .clock  (clock  ),
+        .rst_n  (rst_n  ),
+        .w_n    (w_n    ),
+        .w_en_n (cs_n   ),
+        .t      (dbus   ),
+        .addr   (addr   ),
+        .hour   (hour_hex   ),
+        .minute (minute_hex )
+    );
+    
+    // bcd encoders
+    hex2bcd hex2bcd_hour_inst (
+        .clock  (clock  ),
+        .rst_n  (rst_n  ),
+        .hex    (hour   ),
+        .bcd_0  (hour_bcd0  ),
+        .bcd_1  (hour_bcd1  ),
+        .bcd_2  (/*no use*/ )
+    );
+    
+    hex2bcd hex2bcd_minute_inst (
+        .clock  (clock  ),
+        .rst_n  (rst_n  ),
+        .hex    (hour   ),
+        .bcd_0  (minute_bcd0),
+        .bcd_1  (minute_bcd1),
+        .bcd_2  (/*no use*/ )
+    );
+    
+    
+    
+    
 
 endmodule
