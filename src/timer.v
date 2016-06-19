@@ -18,7 +18,7 @@ module timer(
 
     // local counter
     // cycle is 1 minute
-    always @ (posedge clk or negedge rst_n) begin
+    always @ (posedge clock or negedge rst_n) begin
         if (~rst_n) begin
             counter <= 32'd0;
         end
@@ -36,7 +36,7 @@ module timer(
             hour    <= 6'd0;
             minute  <= 6'd0;
         end
-        else if (~w_prev && w_n) begin  // cpu configuration
+        else if (~w_en_n) begin  // cpu configuration
             if (addr[3 : 0] == 4'b1000) begin
                 hour    <= t;
                 minute  <= minute;

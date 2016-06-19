@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 module test;
     reg clock, rst_n;
     reg cs_n, ale, r_n, w_n;
@@ -10,10 +11,12 @@ module test;
     wire [6 : 0] sig_digi1;
     wire [6 : 0] sig_digi0;
 
-    wire [6 : 0] hour_digi_1;
-    wire [6 : 0] hour_digi_0;
-    wire [6 : 0] minute_digi_1;
-    wire [6 : 0] minute_digi_0;
+    wire [6 : 0] hour_digi1;
+    wire [6 : 0] hour_digi0;
+    wire [6 : 0] minute_digi1;
+    wire [6 : 0] minute_digi0;
+    wire [15: 0] ap;
+
 
     // generate clock and reset signal
     always #5 clock <= ~clock;
@@ -30,24 +33,24 @@ module test;
 
         // 8051 control port
         .cs_n   (cs_n   ),  // chip selection
-        .abus   (a_bus  ),  // address bus
+        .abus   (abus   ),  // address bus
         .ale    (ale    ),  // negedge triggers address latch
         .r_n    (r_n    ),  // posedge triggers cpu read
         .w_n    (w_n    ),  // posedge triggers logic read
-        .dbus   (d_bus  ),  // data bus
+        .dbus   (dbus   ),  // data bus
 
         // data input port
         .pe_n   (pe_n   ),  // input valid
         .sig_in (sig_in ),  // input signal
 
         // data output port
-        .sig_digi2  (sig_digi_2 ),
-        .sig_digi1  (sig_dig_1  ),
-        .sig_digi0  (sig_digi_0 ),
-        .hour_digi1 (hour_digi_1),
-        .hour_digi0 (hour_digi_0),
-        .minute_digi1(minute_digi_1),
-        .minute_digi0(minute_digi_0),
+        .sig_digi2  (sig_digi2 ),
+        .sig_digi1  (sig_digi1 ),
+        .sig_digi0  (sig_digi0 ),
+        .hour_digi1 (hour_digi1),
+        .hour_digi0 (hour_digi0),
+        .minute_digi1(minute_digi1),
+        .minute_digi0(minute_digi0),
         .ap(ap)
     );
 
@@ -96,24 +99,28 @@ module test;
         @(posedge clock) pe_n    <= 1'b1;
     end
 
-    task CPU_WRITE(input [7 : 0] data, input [15: 0] addr);
-        // send the address
-        @(posedge clock)
-        cs_n    <= 1'b0;
-        ale     <= 1'b0;
-        abus    <= addr[15: 8];
-        dbus    <= addr[7 : 0];
-        @(posedge clock);
-        ale     <= 1'b1;
-        // send the data
-        @(posedge clock);
-        w_n     <= 1'b0;
-        dbus    <= data;
-        @(posedge clock);
-        w_n     <= 1'b1;
-        // reset chip selection
-        @(posedge clock);
-        cs_n    <= 1'b1;
+    task CPU_WRITE;
+        input [7 : 0] data;
+        input [15: 0] addr;
+        begin
+            // send the address
+            @(posedge clock)
+            cs_n    <= 1'b0;
+            ale     <= 1'b0;
+            abus    <= addr[15: 8];
+            dbus    <= addr[7 : 0];
+            @(posedge clock);
+            ale     <= 1'b1;
+            // send the data
+            @(posedge clock);
+            w_n     <= 1'b0;
+            dbus    <= data;
+            @(posedge clock);
+            w_n     <= 1'b1;
+            // reset chip selection
+            @(posedge clock);
+            cs_n    <= 1'b1;
+        end
     endtask
 
 endmodule

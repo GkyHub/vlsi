@@ -12,7 +12,7 @@ module filter(
     input   [7 : 0] x,
 
     // signal output
-    output  reg [15: 0] y
+    output  reg [7 : 0] y
     );
 
     reg [8*8-1 : 0] param;  // filter parameter
@@ -21,7 +21,7 @@ module filter(
     reg [7*8-1 : 0] x_arr;  // input signal
 
     // filter configuration
-    always @ (posedge w_n or negedge rst_n) begin
+    always @ (posedge clock or negedge rst_n) begin
         if (~rst_n) begin
             param <= 64'd0;
         end
@@ -52,7 +52,7 @@ module filter(
     // calculation
     always @ (posedge clock or negedge rst_n) begin
         if (~rst_n) begin
-            y <= 16'd0;
+            y <= 8'd0;
         end
         else begin
             y <= x_arr[7 : 0] * param[7 : 0] +

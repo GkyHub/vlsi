@@ -28,27 +28,27 @@ module hex2decdigi_6bit(
             res_1  <= 4'd0;
         end
         else begin
-            if (res_2 > 6'd60) begin
+            if (hex > 6'd60) begin
                 digi_1 <= DIGI_9;
                 res_1  <= hex - 6'd60;
             end
-            else if (res_2 > 6'd50) begin
+            else if (hex > 6'd50) begin
                 digi_1 <= DIGI_5;
                 res_1  <= hex - 6'd50;
             end
-            else if (res_2 > 6'd40) begin
+            else if (hex > 6'd40) begin
                 digi_1 <= DIGI_4;
                 res_1  <= hex - 6'd40;
             end
-            else if (res_2 > 6'd30) begin
+            else if (hex > 6'd30) begin
                 digi_1 <= DIGI_3;
                 res_1  <= hex - 6'd30;
             end
-            else if (res_2 > 6'd20) begin
-                dgii_1 <= DIGI_2;
+            else if (hex > 6'd20) begin
+                digi_1 <= DIGI_2;
                 res_1  <= hex - 6'd20;
             end
-            else if (res_2 > 6'd10) begin
+            else if (hex > 6'd10) begin
                 digi_1 <= DIGI_1;
                 res_1  <= hex - 6'd10;
             end

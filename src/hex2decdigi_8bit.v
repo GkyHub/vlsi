@@ -81,7 +81,7 @@ module hex2decdigi_8bit(
                 res_1  <= res_2 - 7'd30;
             end
             else if (res_2 > 8'd20) begin
-                dgii_1 <= DIGI_2;
+                digi_1 <= DIGI_2;
                 res_1  <= res_2 - 7'd20;
             end
             else if (res_2 > 8'd10) begin

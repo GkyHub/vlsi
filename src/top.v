@@ -8,7 +8,7 @@ module TH99CHLS (
     input   ale,            // negedge triggers address latch
     input   r_n,            // posedge triggers cpu read
     input   w_n,            // posedge triggers logic read
-    inout   [7 : 0] dbus,   // data bus
+    input   [7 : 0] dbus,   // data bus
 
     // data input port
     input   pe_n,           // input valid
@@ -31,8 +31,6 @@ module TH99CHLS (
     // local variables
     reg     [15: 0] addr;
     reg     w_n_prev, cpu_wr_en_n;
-    reg     conf_filter;
-    reg     conf_timer;
 
     wire    [7 : 0] sig_out;
     wire    [5 : 0] hour_hex, minute_hex;
@@ -58,7 +56,6 @@ module TH99CHLS (
         end
     end
 
-
     // filter
     filter filter_inst (
         .clock  (clock      ),
@@ -66,7 +63,7 @@ module TH99CHLS (
         .w_en_n (cpu_wr_en_n),
         .p      (dbus       ),
         .addr   (addr       ),
-        .x_valid(pe_n       ),
+        .x_valid_n(pe_n       ),
         .x      (sig_in     ),
         .y      (sig_out    )
     );
@@ -95,9 +92,9 @@ module TH99CHLS (
         .clock  (clock  ),
         .rst_n  (rst_n  ),
         .hex    (sig_out),
-        .digi_0 (sig_digi_0),
-        .digi_1 (sig_digi_1),
-        .digi_2 (sig_digi_2)
+        .digi_0 (sig_digi0),
+        .digi_1 (sig_digi1),
+        .digi_2 (sig_digi2)
     );
 
     hex2decdigi_6bit hour_encoder (
@@ -111,7 +108,7 @@ module TH99CHLS (
     hex2decdigi_6bit minute_encoder (
         .clock  (clock  ),
         .rst_n  (rst_n  ),
-        .hex    (mintue_hex  ),
+        .hex    (minute_hex  ),
         .digi_0 (minute_digi0),
         .digi_1 (minute_digi1)
     );
