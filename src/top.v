@@ -15,25 +15,27 @@ module TH99CHLS (
     input   [7 : 0] sig_in, // input signal
 
     // data output port
+    output  [6 : 0] sig_digi2,
+    output  [6 : 0] sig_digi1,
+    output  [6 : 0] sig_digi0,
 
-    // display port
-    output  [65: 0] display
+    output  [6 : 0] hour_digi1,
+    output  [6 : 0] hour_digi0,
+
+    output  [6 : 0] minute_digi1,
+    output  [6 : 0] minute_digi0,
+
+    output  [15: 0] ap
     );
 
-    // output signals
-    wire    [6 : 0] sig_digi2, sig_digi1, sig_digi0;
-    wire    [15: 0] ap;
-    wire    [6 : 0] hour_digi0, hour_digi_1;
-    wire    [6 : 0] minute_digi0, minute_digi_1;
-    
     // local variables
     reg     [15: 0] addr;
+    reg     w_n_prev, cpu_wr_en_n;
     reg     conf_filter;
     reg     conf_timer;
-    
-    wire    [7 : 0] hour_hex, minute_hex;
-    wire    [3 : 0] hour_bcd0, hour_bcd1;
-    wire    [3 : 0] minute_bcd0, minute_bcd1;
+
+    wire    [7 : 0] sig_out;
+    wire    [5 : 0] hour_hex, minute_hex;
 
     // address latch
     always @ (abus or dbus or ale) begin
@@ -42,19 +44,33 @@ module TH99CHLS (
         end
     end
 
+    // generate write enable by sample w_n
+    always @ (posedge clock) begin
+        w_n_prev <= w_n;
+    end
+
+    always @ (posedge clock or negedge rst_n) begin
+        if (~rst_n) begin
+            cpu_wr_en_n <= 1'b1;
+        end
+        else begin
+            cpu_wr_en_n <= !(w_n && !w_n_prev && !cs_n);
+        end
+    end
+
+
     // filter
     filter filter_inst (
         .clock  (clock      ),
         .rst_n  (rst_n      ),
-        .w_n    (conf_filter),
-        .w_en_n (cs_n       ),
+        .w_en_n (cpu_wr_en_n),
         .p      (dbus       ),
         .addr   (addr       ),
         .x_valid(pe_n       ),
         .x      (sig_in     ),
         .y      (sig_out    )
     );
-    
+
     // filter amplify conversion
     sqrt_amp sqrt_amp_inst (
         .clock  (clock  ),
@@ -65,37 +81,39 @@ module TH99CHLS (
 
     // timer
     timer timer_inst (
-        .clock  (clock  ),
-        .rst_n  (rst_n  ),
-        .w_n    (w_n    ),
-        .w_en_n (cs_n   ),
-        .t      (dbus   ),
-        .addr   (addr   ),
+        .clock  (clock      ),
+        .rst_n  (rst_n      ),
+        .w_en_n (cpu_wr_en_n),
+        .t      (dbus       ),
+        .addr   (addr       ),
         .hour   (hour_hex   ),
         .minute (minute_hex )
     );
-    
-    // bcd encoders
-    hex2bcd hex2bcd_hour_inst (
+
+    // encode hex to bcd and then to digital tube signals
+    hex2decdigi_8bit sig_out_encoder (
         .clock  (clock  ),
         .rst_n  (rst_n  ),
-        .hex    (hour   ),
-        .bcd_0  (hour_bcd0  ),
-        .bcd_1  (hour_bcd1  ),
-        .bcd_2  (/*no use*/ )
+        .hex    (sig_out),
+        .digi_0 (sig_digi_0),
+        .digi_1 (sig_digi_1),
+        .digi_2 (sig_digi_2)
     );
-    
-    hex2bcd hex2bcd_minute_inst (
+
+    hex2decdigi_6bit hour_encoder (
         .clock  (clock  ),
         .rst_n  (rst_n  ),
-        .hex    (hour   ),
-        .bcd_0  (minute_bcd0),
-        .bcd_1  (minute_bcd1),
-        .bcd_2  (/*no use*/ )
+        .hex    (hour_hex  ),
+        .digi_0 (hour_digi0),
+        .digi_1 (hour_digi1)
     );
-    
-    
-    
-    
+
+    hex2decdigi_6bit minute_encoder (
+        .clock  (clock  ),
+        .rst_n  (rst_n  ),
+        .hex    (mintue_hex  ),
+        .digi_0 (minute_digi0),
+        .digi_1 (minute_digi1)
+    );
 
 endmodule

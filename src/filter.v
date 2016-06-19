@@ -3,13 +3,12 @@ module filter(
     input   rst_n,
 
     // filter configuration port
-    input   w_n,            // posedge triggers write
     input   w_en_n,         // cpu write enable
     input   [7 : 0] p,
     input   [15: 0] addr,
 
     // signal input
-    input   x_valid,
+    input   x_valid_n,
     input   [7 : 0] x,
 
     // signal output
@@ -26,16 +25,16 @@ module filter(
         if (~rst_n) begin
             param <= 64'd0;
         end
-        else if (~cs_n) begin
-            case(addr[2 : 0])
-            3'b000: param[7 : 0] <= p;
-            3'b001: param[15: 8] <= p;
-            3'b010: param[23:16] <= p;
-            3'b011: param[31:24] <= p;
-            3'b100: param[39:32] <= p;
-            3'b101: param[47:40] <= p;
-            3'b110: param[55:48] <= p;
-            3'b111: param[63:56] <= p;
+        else if (~w_en_n) begin
+            case(addr[3 : 0])
+            4'b0000: param[7 : 0] <= p;
+            4'b0001: param[15: 8] <= p;
+            4'b0010: param[23:16] <= p;
+            4'b0011: param[31:24] <= p;
+            4'b0100: param[39:32] <= p;
+            4'b0101: param[47:40] <= p;
+            4'b0110: param[55:48] <= p;
+            4'b0111: param[63:56] <= p;
             endcase
         end
     end
@@ -45,7 +44,7 @@ module filter(
         if (~rst_n) begin
             x_arr <= 56'd0;
         end
-        else if (x_valid) begin
+        else if (~x_valid_n) begin
             x_arr <= {x_arr[47: 0], (x & param[63:56])};
         end
     end
