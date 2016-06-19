@@ -57,7 +57,7 @@ module test;
     initial begin
         // reset signals
         cs_n <= 1'b1;
-        ale  <= 1'b1;
+        ale  <= 1'b0;
         r_n  <= 1'b1;
         w_n  <= 1'b1;
         pe_n <= 1'b1;
@@ -80,8 +80,7 @@ module test;
         CPU_WRITE(8'b00001111, 16'd7);
 
         // input signal
-        @(posedge clock) pe_n    <= 1'b0;
-        @(posedge clock) sig_in  <= 8'd65;
+        @(posedge clock) sig_in  <= 8'd65; pe_n <= 1'b0;
         @(posedge clock) sig_in  <= 8'd66;
         @(posedge clock) sig_in  <= 8'd67;
         @(posedge clock) sig_in  <= 8'd68;
@@ -106,11 +105,11 @@ module test;
             // send the address
             @(posedge clock)
             cs_n    <= 1'b0;
-            ale     <= 1'b0;
+            ale     <= 1'b1;
             abus    <= addr[15: 8];
             dbus    <= addr[7 : 0];
             @(posedge clock);
-            ale     <= 1'b1;
+            ale     <= 1'b0;
             // send the data
             @(posedge clock);
             w_n     <= 1'b0;

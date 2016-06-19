@@ -13,7 +13,7 @@ module sqrt_amp (
 
     genvar i;
     generate
-        for (i = 0; i < 16; i = i + 1) begin
+        for (i = 0; i < 16; i = i + 1) begin: CMP
             always @ (posedge clock or negedge rst_n) begin
                 if (~rst_n) begin
                     ap[15-i] <= 1'b0;

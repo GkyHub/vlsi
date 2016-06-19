@@ -12,7 +12,8 @@ module timer(
     output  reg [5 : 0] minute
     );
 
-    localparam CLK_FREQ = 10000000; // 10MHz clock
+    // localparam CLK_FREQ = 10000000; // 10MHz clock
+    localparam CLK_FREQ = 1; // 1Hz clock for simulation
 
     reg [31: 0] counter;
 
