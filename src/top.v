@@ -36,7 +36,7 @@ module TH99CHLS (
     wire    [5 : 0] hour_hex, minute_hex;
 
     // address latch
-    always @ (abus or dbus or ale) begin
+    always @ (abus or dbus or ale or cs_n) begin
         if (ale && ~cs_n) begin
             addr <= {abus, dbus};
         end

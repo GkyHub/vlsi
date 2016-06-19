@@ -63,7 +63,7 @@ module hex2decdigi_6bit(
     // get digi_0
     always @ (posedge clock or negedge rst_n) begin
         if (~rst_n) begin
-            digi_0 = DIGI_X;
+            digi_0 <= DIGI_X;
         end
         else begin
             case (res_1)
